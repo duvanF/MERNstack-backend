@@ -37,4 +37,25 @@ router.delete('/:id', async (req, res) => {
     res.json({ status: 'task delete'});
 });
 
+router.get('/pagination/:page', (req, res, next) => {
+    let perPage = 5;
+    let page = req.params.page || 1;
+
+    Task
+        .find({})
+        .skip((perPage * page) - perPage)
+        .limit(perPage)
+        .exec((err, tasks) =>{
+            Task.count((err, count) => {
+                if(err) return next(err);
+                res.json({
+                    tasks,
+                    page,
+                    pages: Math.ceil(count / perPage)
+                });
+            })
+        })
+
+});
+
 module.exports = router;
